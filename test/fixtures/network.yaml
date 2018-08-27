@@ -1,0 +1,338 @@
+---
+#
+# The network connection profile provides client applications the information about the target
+# blockchain network that are necessary for the applications to interact with it. These are all
+# knowledge that must be acquired from out-of-band sources. This file provides such a source.
+#
+name: "global-trade-network"
+
+#
+# Any properties with an "x-" prefix will be treated as application-specific, exactly like how naming
+# in HTTP headers or swagger properties work. The SDK will simply ignore these fields and leave
+# them for the applications to process. This is a mechanism for different components of an application
+# to exchange information that are not part of the standard schema described below. In particular,
+# the "x-type" property with the "hlfv1" value deevo below is used by Hyperledger Composer to
+# determine the type of Fabric networks (v0.6 vs. v1.0) it needs to work with.
+#
+x-type: "hlfv1"
+
+#
+# Describe what the target network is/does.
+#
+description: "The network to be in if you want to stay in the global trade business"
+
+#
+# Schema version of the content. Used by the SDK to apply the corresponding parsing rules.
+#
+version: "1.0"
+
+#
+# The client section is SDK-specific. The sample below is for the node.js SDK
+#
+#client:
+  # Which organization does this application instance belong to? The value must be the name of an org
+  # defined under "organizations"
+  #organization: Org1
+
+  # Some SDKs support pluggable KV stores, the properties under "credentialStore"
+  # are implementation specific
+  #credentialStore:
+    # [Optional]. Specific to FileKeyValueStore.js or similar implementations in other SDKs. Can be others
+    # if using an alternative impl. For instance, CouchDBKeyValueStore.js would require an object
+    # here for properties like url, db name, etc.
+    #path: "/tmp/hfc-kvs"
+
+    # [Optional]. Specific to the CryptoSuite implementation. Software-based implementations like
+    # CryptoSuite_ECDSA_AES.js in node SDK requires a key store. PKCS#11 based implementations does
+    # not.
+    #cryptoStore:
+      # Specific to the underlying KeyValueStore that backs the crypto key store.
+      #path: "/tmp/hfc-cvs"
+
+    # [Optional]. Specific to Composer environment
+    #wallet: wallet-name
+
+#
+# [Optional]. But most apps would have this section so that channel objects can be constructed
+# based on the content below. If an app is creating channels, then it likely will not need this
+# section.
+#
+channels:
+  # name of the channel
+  mychannel2:
+    # Required. list of orderers designated by the application to use for transactions on this
+    # channel. This list can be a result of access control ("org1" can only access "ordererA"), or
+    # operational decisions to share loads from applications among the orderers.  The values must
+    # be "names" of orgs defined under "organizations/peers"
+    orderers:
+      - orderer0.org0.deevo.com
+
+    # Required. list of peers from participating orgs
+    peers:
+      peer0.org1.deevo.com:
+        # [Optional]. will this peer be sent transaction proposals for endorsement? The peer must
+        # have the chaincode installed. The app can also use this property to decide which peers
+        # to send the chaincode install request. Default: true
+        endorsingPeer: true
+
+        # [Optional]. will this peer be sent query proposals? The peer must have the chaincode
+        # installed. The app can also use this property to decide which peers to send the
+        # chaincode install request. Default: true
+        chaincodeQuery: true
+
+        # [Optional]. will this peer be sent query proposals that do not require chaincodes, like
+        # queryBlock(), queryTransaction(), etc. Default: true
+        ledgerQuery: true
+
+        # [Optional]. will this peer be the target of the SDK's listener registration? All peers can
+        # produce events but the app typically only needs to connect to one to listen to events.
+        # Default: true
+        eventSource: true
+
+      peer0.org2.deevo.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer0.org3.deevo.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer0.org4.deevo.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer0.org5.deevo.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+    # [Optional]. what chaincodes are expected to exist on this channel? The application can use
+    # this information to validate that the target peers are in the expected state by comparing
+    # this list with the query results of getInstalledChaincodes() and getInstantiatedChaincodes()
+    chaincodes:
+      # the format follows the "cannonical name" of chaincodes by fabric code
+      - deevo02:v1
+      - marbles:1.0
+
+#
+# list of participating organizations in this network
+#
+organizations:
+  org0:
+    mspid: org0MSP
+    adminPrivateKey:
+      path: test/myconfignetwork/orgs/org0/admin/msp/keystore/a823730a32756d3a4a8b7186d24ef86a6d2caf32553c2a97cc0f1a641bd0e202_sk
+    signedCert:
+      path: test/myconfignetwork/orgs/org0/admin/msp/signcerts/rca-org0-deevo-com-7054.pem
+  org1:
+    mspid: org1MSP
+
+    peers:
+      - peer0.org1.deevo.com
+
+    # [Optional]. Certificate Authorities issue certificates for identification purposes in a Fabric based
+    # network. Typically certificates provisioning is done in a separate process outside of the
+    # runtime network. Fabric-CA is a special certificate authority that provides a REST APIs for
+    # dynamic certificate management (enroll, revoke, re-enroll). The following section is only for
+    # Fabric-CA servers.
+    certificateAuthorities:
+      - rca.org1.deevo.com
+
+    # [Optional]. If the application is going to make requests that are reserved to organization
+    # administrators, including creating/updating channels, installing/instantiating chaincodes, it
+    # must have access to the admin identity represented by the private key and signing certificate.
+    # Both properties can be the PEM string or local path to the PEM file. Note that this is mainly for
+    # convenience in development mode, production systems should not expose sensitive information
+    # this way. The SDK should allow applications to set the org admin identity via APIs, and only use
+    # this route as an alternative when it exists.
+    adminPrivateKey:
+      path: test/myconfignetwork/orgs/org1/admin/msp/keystore/3c0cef9bbdd255037f3378b88cd5733db1dbb8e98d1d5b9897f3d16d4823a411_sk
+    signedCert:
+      path: test/myconfignetwork/orgs/org1/admin/msp/signcerts/rca-org0-deevo-com-7054.pem
+
+  # the profile will contain public information about organizations other than the one it belongs to.
+  # These are necessary information to make transaction lifecycles work, including MSP IDs and
+  # peers with a public URL to send transaction proposals. The file will not contain private
+  # information reserved for members of the organization, such as admin key and certificate,
+  # fabric-ca registrar enroll ID and secret, etc.
+  org2:
+    mspid: org2MSP
+    peers:
+      - peer0.org2.deevo.com
+    certificateAuthorities:
+      - rca.org2.deevo.com
+    adminPrivateKey:
+      path: test/myconfignetwork/orgs/org2/admin/msp/keystore/7846a0a0ff282eb6ae645b98c814c4ecc93b2d5e964404a1225681b6b8d069a9_sk
+    signedCert:
+      path: test/myconfignetwork/orgs/org2/admin/msp/signcerts/rca-org0-deevo-com-7054.pem
+  org3:
+    mspid: org3MSP
+    peers:
+      - peer0.org3.deevo.com
+    certificateAuthorities:
+      - rca.org3.deevo.com
+    adminPrivateKey:
+      path: test/myconfignetwork/orgs/org3/admin/msp/keystore/7c3b436f3ce56de300e9615734760b3c722e01f1e71aa389857f421f6e9afaa5_sk
+    signedCert:
+      path: test/myconfignetwork/orgs/org3/admin/msp/signcerts/rca-org0-deevo-com-7054.pem
+  org4:
+    mspid: org4MSP
+    peers:
+      - peer0.org4.deevo.com
+    certificateAuthorities:
+      - rca.org4.deevo.com
+    adminPrivateKey:
+      path: test/myconfignetwork/orgs/org4/admin/msp/keystore/3c378541bd4028868715a14dd5818e7e451ddeedc2132a2e36615f49d946f884_sk
+    signedCert:
+      path: test/myconfignetwork/orgs/org4/admin/msp/signcerts/rca-org0-deevo-com-7054.pem
+  org5:
+    mspid: org2MSP
+    peers:
+      - peer0.org5.deevo.com
+    certificateAuthorities:
+      - rca.org5.deevo.com
+    adminPrivateKey:
+      path: test/myconfignetwork/orgs/org5/admin/msp/keystore/24063d0a42043b5858c2eccb909eee5fa22a6e3eb03ea9997b33385dda7ed3de_sk
+    signedCert:
+      path: test/myconfignetwork/orgs/org5/admin/msp/signcerts/rca-org0-deevo-com-7054.pem
+#
+# List of orderers to send transaction and channel create/update requests to. For the time
+# being only one orderer is needed. If more than one is defined, which one get used by the
+# SDK is implementation specific. Consult each SDK's documentation for its handling of orderers.
+#
+orderers:
+  orderer0.org0.deevo.com:
+    url: grpcs://orderer0.org0.deevo.com:7050
+
+    # these are standard properties defined by the gRPC library
+    # they will be passed in as-is to gRPC client constructor
+    grpcOptions:
+      ssl-target-name-override: orderer0.org0.deevo.com
+      grpc-max-send-message-length: 15
+
+    tlsCACerts:
+      path: test/networkconfig/orderers/msp/tlscacerts/rca-org0-deevo-com-7054.com
+
+#
+# List of peers to send various requests to, including endorsement, query
+# and event listener registration.
+#
+peers:
+  peer0.org1.deevo.com:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://peer0.org1.deevo.com:7051
+
+    # this URL is used to connect the EventHub and registering event listeners
+    eventUrl: grpcs://peer0.org1.deevo.com:7053
+
+    grpcOptions:
+      ssl-target-name-override: peer0.org1.deevo.com
+      grpc.http2.keepalive_time: 15
+
+    tlsCACerts:
+      path: test/networkconfig/peer0-org0-deevo-com-7054/msp/tlscacerts/rca-org1-deevo-com-7054.pem
+
+  peer0.org2.deevo.com:
+    url: grpcs://peer0.org2.deevo.com:8051
+    eventUrl: grpcs://peer0.org1.deevo.com:8053
+    grpcOptions:
+      ssl-target-name-override: peer0.org2.deevo.com
+    tlsCACerts:
+      path: test/networkconfig/peer0-org0-deevo-com-7054/msp/tlscacerts/rca-org1-deevo-com-7054.pem
+  peer0.org3.deevo.com:
+    url: grpcs://peer0.org3.deevo.com:8051
+    eventUrl: grpcs://peer0.org3.deevo.com:8053
+    grpcOptions:
+      ssl-target-name-override: peer0.org3.deevo.com
+    tlsCACerts:
+      path: test/networkconfig/peer0-org0-deevo-com-7054/msp/tlscacerts/rca-org1-deevo-com-7054.pem
+  peer0.org4.deevo.com:
+    url: grpcs://peer0.org4.deevo.com:8051
+    eventUrl: grpcs://peer0.org4.deevo.com:8053
+    grpcOptions:
+      ssl-target-name-override: peer0.org4.deevo.com
+    tlsCACerts:
+      path: test/networkconfig/peer0-org0-deevo-com-7054/msp/tlscacerts/rca-org1-deevo-com-7054.pem
+  peer0.org5.deevo.com:
+    url: grpcs://peer0.org5.deevo.com:8051
+    eventUrl: grpcs://peer0.org5.deevo.com:8053
+    grpcOptions:
+      ssl-target-name-override: peer0.org5.deevo.com
+    tlsCACerts:
+      path: test/networkconfig/peer0-org0-deevo-com-7054/msp/tlscacerts/rca-org1-deevo-com-7054.pem
+
+
+
+
+#
+# Fabric-CA is a special kind of Certificate Authority provided by Hyperledger Fabric which allows
+# certificate management to be done via REST APIs. Application may choose to use a standard
+# Certificate Authority instead of Fabric-CA, in which case this section would not be specified.
+#
+certificateAuthorities:
+  rca.org1.deevo.com:
+    url: https://rca.org1.deevo.com:7054
+    # the properties specified under this object are passed to the 'http' client verbatim when
+    # making the request to the Fabric-CA server
+    httpOptions:
+      verify: false
+    tlsCACerts:
+      path: test/networkconfig/org1-ca-cert.pem
+
+    # Fabric-CA supports dynamic user enrollment via REST APIs. A "root" user, a.k.a registrar, is
+    # needed to enroll and invoke new users.
+    registrar:
+      - enrollId: rca-org1-admin
+        enrollSecret: rca-org1-adminpw
+    # [Optional] The optional name of the CA.
+    caName: rca.org1.deevo.com
+
+  rca.org2.deevo.com:
+    url: https://rca.org2.deevo.com:8054
+    httpOptions:
+      verify: false
+    tlsCACerts:
+      path: test/networkconfig/org2-ca-cert.pem
+    registrar:
+      - enrollId: rca-org2-admin
+        enrollSecret: rca-org2-adminpw
+    # [Optional] The optional name of the CA.
+    caName: rca.org2.deevo.com
+
+  rca.org3.deevo.com:
+    url: https://rca.org3.deevo.com:8054
+    httpOptions:
+      verify: false
+    tlsCACerts:
+      path: test/networkconfig/org3-ca-cert.pem
+    registrar:
+      - enrollId: rca-org3-admin
+        enrollSecret: rca-org3-adminpw
+    # [Optional] The optional name of the CA.
+    caName: rca.org3.deevo.com
+  rca.org4.deevo.com:
+    url: https://rca.org4.deevo.com:8054
+    httpOptions:
+      verify: false
+    tlsCACerts:
+      path: test/networkconfig/org4-ca-cert.pem
+    registrar:
+      - enrollId: rca-org4-admin
+        enrollSecret: rca-org4-adminpw
+    # [Optional] The optional name of the CA.
+    caName: rca.org4.deevo.com
+  rca.org5.deevo.com:
+    url: https://rca.org5.deevo.com:8054
+    httpOptions:
+      verify: false
+    tlsCACerts:
+      path: test/networkconfig/org5-ca-cert.pem
+    registrar:
+      - enrollId: rca-org5-admin
+        enrollSecret: rca-org5-adminpw
+    # [Optional] The optional name of the CA.
+    caName: rca.org5.deevo.com
