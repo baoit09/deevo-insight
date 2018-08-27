@@ -38,7 +38,7 @@ module.exports.CHAINCODE_PATH = 'src/github.com/chaincode_example02';
 module.exports.CHAINCODE_UPGRADE_PATH = 'github.com/chaincode_example02';
 module.exports.CHAINCODE_UPGRADE_PATH_V2 = 'github.com/chaincode_example02';
 module.exports.END2END = {
-	channel: 'mychannel',
+	channel: 'mychannel2',
 	chaincodeId: 'end2endnodesdk',
 	chaincodeVersion: 'v0'
 };
@@ -49,7 +49,7 @@ module.exports.NODE_CHAINCODE_UPGRADE_PATH_V2 = path.resolve(__dirname, '../fixt
 module.exports.METADATA_PATH = path.resolve(__dirname, '../fixtures/metadata');
 
 module.exports.NODE_END2END = {
-	channel: 'mychannel',
+	channel: 'mychannel2',
 	chaincodeId: 'e2enodecc',
 	chaincodeLanguage: 'node',
 	chaincodeVersion: 'v0'
