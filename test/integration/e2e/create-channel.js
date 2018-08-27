@@ -105,8 +105,44 @@ test('\n\n***** SDK Built config update  create flow  *****\n\n', function(t) {
 		// collect signature from org2 admin
 		signatures.push(signature);
 
-		return testUtil.getOrderAdminSubmitter(client, t);
+		// return testUtil.getOrderAdminSubmitter(client, t);
+		return testUtil.getSubmitter(client, t, true /*get the org admin*/, 'org3');
 	}).then((admin) => {
+		t.pass('Successfully enrolled user \'admin\' for org3');
+
+		// sign the config
+		var signature = client.signChannelConfig(config);
+		t.pass('Successfully signed config update');
+
+		// collect signature from org2 admin
+		signatures.push(signature);
+
+		// return testUtil.getOrderAdminSubmitter(client, t);
+		return testUtil.getSubmitter(client, t, true /*get the org admin*/, 'org4');
+	}) .then((admin) => {
+		t.pass('Successfully enrolled user \'admin\' for org4');
+
+		// sign the config
+		var signature = client.signChannelConfig(config);
+		t.pass('Successfully signed config update');
+
+		// collect signature from org2 admin
+		signatures.push(signature);
+
+		// return testUtil.getOrderAdminSubmitter(client, t);
+		return testUtil.getSubmitter(client, t, true /*get the org admin*/, 'org5');
+	}) .then((admin) => {
+		t.pass('Successfully enrolled user \'admin\' for org5');
+
+		// sign the config
+		var signature = client.signChannelConfig(config);
+		t.pass('Successfully signed config update');
+
+		// collect signature from org2 admin
+		signatures.push(signature);
+
+		return testUtil.getOrderAdminSubmitter(client, t);
+	}) .then((admin) => {
 		t.pass('Successfully enrolled user \'admin\' for orderer');
 
 		let orderer_bad = client.newOrderer(
