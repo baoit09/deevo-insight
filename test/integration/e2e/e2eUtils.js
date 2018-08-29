@@ -46,7 +46,7 @@ function installChaincode(org, chaincode_path, metadata_path, version, language,
 	var channel_name = Client.getConfigSetting('E2E_CONFIGTX_CHANNEL_NAME', testUtil.END2END.channel);
 
 	var client = new Client();
-	client.setDevMode(true);
+	//client.setDevMode(false);
 	var channel = client.newChannel(channel_name);
 
 	var orgName = ORGS[org].name;
@@ -82,7 +82,10 @@ function installChaincode(org, chaincode_path, metadata_path, version, language,
 					'pem': caroots,
 					'clientCert': tlsInfo.certificate,
 					'clientKey': tlsInfo.key,
-					'ssl-target-name-override': ORGS.orderer['server-hostname']
+					'ssl-target-name-override': ORGS.orderer['server-hostname'],
+					'grpc-max-send-message-length': 1024 * 1024 * 10,
+					'grpc.max_send_message_length': 1024 * 1024 * 10,
+					'grpc.max_receive_message_length': 8 * 1024 * 1024
 				}
 			)
 		);
@@ -100,7 +103,10 @@ function installChaincode(org, chaincode_path, metadata_path, version, language,
 							pem: Buffer.from(data).toString(),
 							'clientCert': tlsInfo.certificate,
 							'clientKey': tlsInfo.key,
-							'ssl-target-name-override': ORGS[org][key]['server-hostname']
+							'ssl-target-name-override': ORGS[org][key]['server-hostname'],
+							'grpc-max-send-message-length': 1024 * 1024 * 10,
+							'grpc.max_send_message_length': 1024 * 1024 * 10,
+							'grpc.max_receive_message_length': 8 * 1024 * 1024
 						}
 					);
 
@@ -231,14 +237,17 @@ function instantiateChaincode(userOrg, chaincode_path, version, language, upgrad
 					'pem': caroots,
 					'clientCert': tlsInfo.certificate,
 					'clientKey': tlsInfo.key,
-					'ssl-target-name-override': ORGS.orderer['server-hostname']
+					'ssl-target-name-override': ORGS.orderer['server-hostname'],
+					'grpc-max-send-message-length': 1024 * 1024 * 10,
+					'grpc.max_send_message_length': 1024 * 1024 * 10,
+					'grpc.max_receive_message_length': 8 * 1024 * 1024
 				}
 			)
 		);
 
 		for(let org in ORGS) {
-			if (ORGS[org].hasOwnProperty('peer1org1')) {
-				let key = 'peer1org1';
+			if (ORGS[org].hasOwnProperty('peer1')) {
+				let key = 'peer1';
 				let data = fs.readFileSync(path.join(__dirname, ORGS[org][key]['tls_cacerts']));
 				logger.debug(' create new peer %s', ORGS[org][key].requests);
 				let peer = client.newPeer(
@@ -247,7 +256,10 @@ function instantiateChaincode(userOrg, chaincode_path, version, language, upgrad
 						pem: Buffer.from(data).toString(),
 						'clientCert': tlsInfo.certificate,
 						'clientKey': tlsInfo.key,
-						'ssl-target-name-override': ORGS[org][key]['server-hostname']
+						'ssl-target-name-override': ORGS[org][key]['server-hostname'],
+						'grpc-max-send-message-length': 1024 * 1024 * 10,
+						'grpc.max_send_message_length': 1024 * 1024 * 10,
+						'grpc.max_receive_message_length': 8 * 1024 * 1024
 					}
 				);
 
@@ -257,16 +269,19 @@ function instantiateChaincode(userOrg, chaincode_path, version, language, upgrad
 		}
 
 		// an event listener can only register with a peer in its own org
-		logger.debug(' create new eventhub %s', ORGS[userOrg]['peer1org1'].events);
-		let data = fs.readFileSync(path.join(__dirname, ORGS[userOrg]['peer1org1']['tls_cacerts']));
+		logger.debug(' create new eventhub %s', ORGS[userOrg]['peer1'].events);
+		let data = fs.readFileSync(path.join(__dirname, ORGS[userOrg]['peer1']['tls_cacerts']));
 		let eh = client.newEventHub();
 		eh.setPeerAddr(
-			ORGS[userOrg]['peer1org1'].events,
+			ORGS[userOrg]['peer1'].events,
 			{
 				pem: Buffer.from(data).toString(),
 				'clientCert': tlsInfo.certificate,
 				'clientKey': tlsInfo.key,
-				'ssl-target-name-override': ORGS[userOrg]['peer1org1']['server-hostname']
+				'ssl-target-name-override': ORGS[userOrg]['peer1']['server-hostname'],
+				'grpc-max-send-message-length': 1024 * 1024 * 10,
+				'grpc.max_send_message_length': 1024 * 1024 * 10,
+				'grpc.max_receive_message_length': 8 * 1024 * 1024
 			}
 		);
 		eh.connect();
@@ -475,12 +490,13 @@ function buildChaincodeProposal(client, the_user, chaincode_path, version, type,
 				{ role: { name: 'member', mspId: ORGS['org2'].mspid }},
 				{ role: { name: 'member', mspId: ORGS['org3'].mspid }},
 				{ role: { name: 'member', mspId: ORGS['org4'].mspid }},
-				{ role: { name: 'member', mspId: ORGS['org5'].mspid }}
+				{ role: { name: 'member', mspId: ORGS['org5'].mspid }},
+				{ role: { name: 'admin', mspId: ORGS['org1'].mspid }}
 			],
 			policy: {
 				'1-of': [
-					{ 'signed-by': 2},
-					{ '2-of': [{ 'signed-by': 0}, { 'signed-by': 1 }]}
+					{ 'signed-by': 0},
+					{ '2-of': [{ 'signed-by': 0}, { 'signed-by': 1 }, { 'signed-by': 2 }, { 'signed-by': 3 }, { 'signed-by': 4 }]}
 				]
 			}
 		}
@@ -578,7 +594,10 @@ function invokeChaincode(userOrg, version, chaincodeId, t, useStore){
 					'pem': caroots,
 					'clientCert': tlsInfo.certificate,
 					'clientKey': tlsInfo.key,
-					'ssl-target-name-override': ORGS.orderer['server-hostname']
+					'ssl-target-name-override': ORGS.orderer['server-hostname'],
+					'grpc-max-send-message-length': 1024 * 1024 * 10,
+					'grpc.max_send_message_length': 1024 * 1024 * 10,
+					'grpc.max_receive_message_length': 8 * 1024 * 1024
 				}
 			)
 		);
@@ -586,15 +605,18 @@ function invokeChaincode(userOrg, version, chaincodeId, t, useStore){
 		// set up the channel to use each org's 'peer1-org1' for
 		// both requests and events
 		for (let key in ORGS) {
-			if (ORGS.hasOwnProperty(key) && typeof ORGS[key].peer1org1!== 'undefined') {
-				let data = fs.readFileSync(path.join(__dirname, ORGS[key].peer1org1['tls_cacerts']));
+			if (ORGS.hasOwnProperty(key) && typeof ORGS[key].peer1!== 'undefined') {
+				let data = fs.readFileSync(path.join(__dirname, ORGS[key].peer1['tls_cacerts']));
 				let peer = client.newPeer(
-					ORGS[key].peer1org1.requests,
+					ORGS[key].peer1.requests,
 					{
 						pem: Buffer.from(data).toString(),
 						'clientCert': tlsInfo.certificate,
 						'clientKey': tlsInfo.key,
-						'ssl-target-name-override': ORGS[key].peer1org1['server-hostname']
+						'ssl-target-name-override': ORGS[key].peer1['server-hostname'],
+						'grpc-max-send-message-length': 1024 * 1024 * 10,
+						'grpc.max_send_message_length': 1024 * 1024 * 10,
+						'grpc.max_receive_message_length': 8 * 1024 * 1024
 					}
 				);
 				channel.addPeer(peer);
@@ -602,17 +624,20 @@ function invokeChaincode(userOrg, version, chaincodeId, t, useStore){
 		}
 
 		// an event listener can only register with a peer in its own org
-		let data = fs.readFileSync(path.join(__dirname, ORGS[userOrg].peer1org1['tls_cacerts']));
+		let data = fs.readFileSync(path.join(__dirname, ORGS[userOrg].peer1['tls_cacerts']));
 		let eh = client.newEventHub();
 		eh.setPeerAddr(
-			ORGS[userOrg].peer1org1.events,
+			ORGS[userOrg].peer1.events,
 			{
 				pem: Buffer.from(data).toString(),
 				'clientCert': tlsInfo.certificate,
 				'clientKey': tlsInfo.key,
-				'ssl-target-name-override': ORGS[userOrg].peer1org1['server-hostname'],
+				'ssl-target-name-override': ORGS[userOrg].peer1['server-hostname'],
 				'grpc.keepalive_timeout_ms' : 3000, // time to respond to the ping, 3 seconds
-				'grpc.keepalive_time_ms' : 360000, // time to wait for ping response, 6 minutes
+				'grpc.keepalive_time_ms' : 360000, // time to wait for ping response, 6 minutes,
+				'grpc-max-send-message-length': 1024 * 1024 * 10,
+				'grpc.max_send_message_length': 1024 * 1024 * 10,
+				'grpc.max_receive_message_length': 8 * 1024 * 1024
 			}
 		);
 		eh.connect();
@@ -825,18 +850,21 @@ function queryChaincode(org, version, value, chaincodeId, t, transientMap) {
 		t.pass('Successfully enrolled user \'admin\' (e2eUtil 4)');
 
 		var targets = [];
-		// set up the channel to use each org's 'peer1org1' for
+		// set up the channel to use each org's 'peer1' for
 		// both requests and events
 		for (let key in ORGS) {
-			if (ORGS.hasOwnProperty(key) && typeof ORGS[key].peer1org1 !== 'undefined') {
-				let data = fs.readFileSync(path.join(__dirname, ORGS[key].peer1org1['tls_cacerts']));
+			if (ORGS.hasOwnProperty(key) && typeof ORGS[key].peer1 !== 'undefined') {
+				let data = fs.readFileSync(path.join(__dirname, ORGS[key].peer1['tls_cacerts']));
 				let peer = client.newPeer(
-					ORGS[key].peer1org1.requests,
+					ORGS[key].peer1.requests,
 					{
 						pem: Buffer.from(data).toString(),
 						'clientCert': tlsInfo.certificate,
 						'clientKey': tlsInfo.key,
-						'ssl-target-name-override': ORGS[key].peer1org1['server-hostname']
+						'ssl-target-name-override': ORGS[key].peer1['server-hostname'],
+						'grpc-max-send-message-length': 1024 * 1024 * 10,
+						'grpc.max_send_message_length': 1024 * 1024 * 10,
+						'grpc.max_receive_message_length': 8 * 1024 * 1024
 					});
 				channel.addPeer(peer);
 			}

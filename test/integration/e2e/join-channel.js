@@ -111,7 +111,10 @@ function joinChannel(org, t) {
 					'pem': caroots,
 					'clientCert': tlsInfo.certificate,
 					'clientKey': tlsInfo.key,
-					'ssl-target-name-override': ORGS.orderer['server-hostname']
+					'ssl-target-name-override': ORGS.orderer['server-hostname'],
+					'grpc-max-send-message-length': 1024 * 1024 * 10,
+					'grpc.max_send_message_length': 1024 * 1024 * 10,
+					'grpc.max_receive_message_length': 8 * 1024 * 1024
 				}
 			)
 		);
@@ -144,7 +147,10 @@ function joinChannel(org, t) {
 								pem: Buffer.from(data).toString(),
 								'clientCert': tlsInfo.certificate,
 								'clientKey': tlsInfo.key,
-								'ssl-target-name-override': ORGS[org][key]['server-hostname']
+								'ssl-target-name-override': ORGS[org][key]['server-hostname'],
+								'grpc-max-send-message-length': 1024 * 1024 * 10,
+								'grpc.max_send_message_length': 1024 * 1024 * 10,
+								'grpc.max_receive_message_length': 8 * 1024 * 1024
 							}
 						)
 					);

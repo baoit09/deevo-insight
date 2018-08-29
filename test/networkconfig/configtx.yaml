@@ -72,7 +72,7 @@ Organizations:
         ID: org0MSP
 
         # MSPDir is the filesystem path which contains the MSP configuration.
-        MSPDir:  /home/ubuntu/hyperledgerconfig/data/orgs/org0/msp
+        MSPDir: /home/ubuntu/hyperledgerconfig/data/orgs/org0/msp
 
     - &org1
         # Name is the key by which this org will be referenced in channel
@@ -85,7 +85,7 @@ Organizations:
         ID: org1MSP
 
         # MSPDir is the filesystem path which contains the MSP configuration.
-        MSPDir:  /home/ubuntu/hyperledgerconfig/data/orgs/org1/msp
+        MSPDir: /home/ubuntu/hyperledgerconfig/data/orgs/org1/msp
 
         # AnchorPeers defines the location of peers which can be used for
         # cross-org gossip communication. Note, this value is only encoded in
@@ -131,7 +131,7 @@ Organizations:
         AnchorPeers:
             - Host: peer0.org3.deevo.com
               Port: 7051
-    - &org4
+- &org4
         # Name is the key by which this org will be referenced in channel
         # configuration transactions.
         # Name can include alphanumeric characters as well as dots and dashes.
@@ -150,7 +150,7 @@ Organizations:
         AnchorPeers:
             - Host: peer0.org4.deevo.com
               Port: 7051
-    - &org5
+- &org5
         # Name is the key by which this org will be referenced in channel
         # configuration transactions.
         # Name can include alphanumeric characters as well as dots and dashes.
@@ -204,7 +204,7 @@ Orderer: &OrdererDefaults
         # the serialized messages in a batch. If the kafka OrdererType is
         # selected, set 'message.max.bytes' and 'replica.fetch.max.bytes' on
         # the Kafka brokers to a value that is larger than this one.
-        AbsoluteMaxBytes: 10 MB
+        AbsoluteMaxBytes: 98 MB
 
         # Preferred Max Bytes: The preferred maximum number of bytes allowed
         # for the serialized messages in a batch. A message larger than the
@@ -309,4 +309,3 @@ Capabilities:
         # the network may cause a fork.
         V1_1_RESOURCETREE_EXPERIMENTAL: false
    
-

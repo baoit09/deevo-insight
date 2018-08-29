@@ -34,12 +34,12 @@ var logger = require('fabric-client/lib/utils.js').getLogger('TestUtil');
 
 module.exports.METADATA_PATH = path.resolve(__dirname, '../fixtures/metadata');
 
-module.exports.CHAINCODE_PATH = 'src/github.com/chaincode_example02';
-module.exports.CHAINCODE_UPGRADE_PATH = 'github.com/chaincode_example02';
-module.exports.CHAINCODE_UPGRADE_PATH_V2 = 'github.com/chaincode_example02';
+module.exports.CHAINCODE_PATH = 'github.com/example_cc';
+module.exports.CHAINCODE_UPGRADE_PATH = 'github.com/example_cc1';
+module.exports.CHAINCODE_UPGRADE_PATH_V2 = 'github.com/example_cc2';
 module.exports.END2END = {
-	channel: 'mychannel2',
-	chaincodeId: 'end2endnodesdk',
+	channel: 'mychannel4',
+	chaincodeId: 'end2endnodesdk1',
 	chaincodeVersion: 'v0'
 };
 
@@ -49,8 +49,8 @@ module.exports.NODE_CHAINCODE_UPGRADE_PATH_V2 = path.resolve(__dirname, '../fixt
 module.exports.METADATA_PATH = path.resolve(__dirname, '../fixtures/metadata');
 
 module.exports.NODE_END2END = {
-	channel: 'mychannel2',
-	chaincodeId: 'e2enodecc',
+	channel: 'mychannel4',
+	chaincodeId: 'e2enodecc1',
 	chaincodeLanguage: 'node',
 	chaincodeVersion: 'v0'
 };
@@ -177,9 +177,11 @@ function getMember(username, password, client, t, userOrg) {
 }
 
 function getAdmin(client, t, userOrg) {
-	var keyPath = path.join(__dirname, util.format('../myconfignetwork/orgs/%s/admin/msp/keystore', userOrg));
+	//var keyPath = path.join(__dirname, util.format('../networkconfig/orgs/%s/admin/msp/keystore', userOrg));
+	var keyPath = path.join(__dirname, util.format('../networkconfig/orgs/%s/admin/msp/keystore', userOrg));
 	var keyPEM = Buffer.from(readAllFiles(keyPath)[0]).toString();
-	var certPath = path.join(__dirname, util.format('../myconfignetwork/orgs/%s/admin/msp/signcerts', userOrg));
+	//var certPath = path.join(__dirname, util.format('../networkconfig/orgs/%s/admin/msp/signcerts', userOrg));
+	var certPath = path.join(__dirname, util.format('../networkconfig/orgs/%s/admin/msp/signcerts', userOrg));
 	var certPEM = readAllFiles(certPath)[0];
 
 	var cryptoSuite = Client.newCryptoSuite();
@@ -199,9 +201,9 @@ function getAdmin(client, t, userOrg) {
 }
 
 function getOrdererAdmin(client, t) {
-	var keyPath = path.join(__dirname, '../myconfignetwork/orgs/org0/admin/msp/keystore');
+	var keyPath = path.join(__dirname, '../networkconfig/orgs/org0/admin/msp/keystore');
 	var keyPEM = Buffer.from(readAllFiles(keyPath)[0]).toString();
-	var certPath = path.join(__dirname, '../myconfignetwork/orgs/org0/admin/msp/signcerts');
+	var certPath = path.join(__dirname, '../networkconfig/orgs/org0/admin/msp/signcerts');
 	var certPEM = readAllFiles(certPath)[0];
 
 	return Promise.resolve(client.createUser({
